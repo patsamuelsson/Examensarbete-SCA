@@ -1,0 +1,98 @@
+﻿.modal-header-primary {
+    color: #fff;
+    padding: 9px 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #009FDF;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.spanWarning {
+    z-index: 2;
+}
+
+.trHead {
+    font-weight: bold;
+}
+
+#frequensDays {
+    margin: 0 auto;
+    font-weight: bold;
+}
+
+.divTable {
+    border-style: groove;
+}
+
+.AddAdminDDS {
+    display: none;
+}
+
+.spanOnlyNum {
+    color: red;
+}
+
+.toggleInfo{
+    float: left;
+    margin: 0 auto;
+    margin-left: 15px;
+    display: block !important;
+    border: none !important;
+}
+
+.toggleMenu{
+    float: right;
+    border: none !important;
+}
+
+.wrap {
+    min-height:100%;
+    position: fixed;
+    background: #00205B;
+    text-align: left;
+    width: 200px;
+}
+
+.machinePartialView { 
+    background-color: #00205B;
+    color:white;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+#pageContent {
+    padding-left: 220px;
+}
+
+#toggleIcon {
+    font-size: 1.925em;
+    color: white;
+}
+
+#menuIcon {
+    color: white;
+    font-size: 1.5em;
+}
+
+#liDropDown {
+    color:white;
+}
+
+#ulDropDown {
+    background-color: #009FDF;
+    color: white;
+}
+
+.dropdown-menu>li>a {
+    color: white;
+}
+.dropdown-menu>li>a:hover {
+    background-color: #00729D;
+    color: white;
+}

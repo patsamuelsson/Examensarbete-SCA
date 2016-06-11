@@ -1,0 +1,60 @@
+﻿@model SecondTry.Models.loggedInUser
+
+<div class="wrap" id="machinePartialView">
+    <div class="machinePartialView">
+        <div class="col-md-12"><br /></div>
+        <div class="col-md-12">Inloggad som: <br />@Model.username</div>
+        <div class="col-md-12"><br /></div>
+        <div class="col-md-12">Nuvarande Skift: @Model.currShift.shift</div>
+
+        @using (Html.BeginForm("changeShift", "Home"))
+        {
+            <div class="col-md-12">
+                Välj Skift: @Html.DropDownList("selectedShiftNo", (IEnumerable<SelectListItem>)ViewBag.allShift,
+                    new { onchange = "this.form.submit();", @class = "ownDropDown" })
+            </div>
+        }
+        <div class="col-md-12"><br /></div>
+        <div class="col-md-12">Valt Skift: @Model.selShift.shift</div>
+
+        @if (Model.locked)
+        {
+            <div class="col-md-12">Nuvarande Maskin: @Model.maskin</div>
+        }
+        else
+        {
+            using (Html.BeginForm("changeMachine", "Home"))
+            {
+                <div class="col-md-12">
+                    Maskin: @Html.DropDownList("selectedMachine", ViewBag.allMachines as SelectList,
+                    new { onchange = "this.form.submit();", @class = "ownDropDown" })
+                </div>
+            }
+        }
+        <div class="col-md-12"><br /></div>
+        <div class="col-md-12">
+            @if (ViewBag.tarRes != null)
+            {
+                <table class="table-centered" style="text-align:center;">
+                    <th>
+                    <td>Stopp /8h</td>
+                    <td>Spill</td>
+                    <td>OEE</td>
+                    </th>
+                    <tr>
+                        <td>Mål</td>
+                        <td>@ViewBag.tarRes.stopTarget</td>
+                        <td>@ViewBag.tarRes.wasteTarget%</td>
+                        <td>@ViewBag.tarRes.oeeTarget%</td>
+                    </tr>
+                    <tr>
+                        <td>Utfall</td>
+                        <td style="background-color: @ViewBag.tarRes.stopColor">@ViewBag.tarRes.stopResult</td>
+                        <td style="background-color: @ViewBag.tarRes.wasteColor">@ViewBag.tarRes.wasteResult%</td>
+                        <td style="background-color: @ViewBag.tarRes.oeeColor">@ViewBag.tarRes.oeeResult%</td>
+                    </tr>
+                </table>
+            }
+        </div>
+    </div>
+</div>

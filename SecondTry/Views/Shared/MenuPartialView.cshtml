@@ -1,0 +1,61 @@
+﻿    <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button class="toggleInfo navbar-toggle" id="toggleInfobar">
+                <span id="toggleIcon" class="glyphicon glyphicon-chevron-up"></span>
+            </button>
+            <button type="button" class="toggleMenu navbar-toggle" data-toggle="collapse" data-target="#mainNavBar">
+                <span id="menuIcon" class="glyphicon glyphicon-menu-hamburger"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="mainNavBar">
+            <ul class="nav navbar-nav">
+                <li class="@Url.MakeActive("Home", ViewBag.lastView as string)"><a href="@Url.Action("Index", "Home")">DOM</a></li>
+                <li class="@Url.MakeActive("DDS", ViewBag.lastView as string)">
+                    <a href="@Url.Action("Index", "DDS")">
+                        DDS @if (ViewBag.DDSTodo != 0)
+                        { <span class="badge">@ViewBag.DDSTodo</span> }
+                    </a>
+                </li>
+                <li class="@Url.MakeActive("_5S", ViewBag.lastView as string)">
+                    <a href="@Url.Action("Index", "_5S")">
+                        5S @if (ViewBag._5sTodo != 0)
+                        { <span class="badge">@ViewBag._5sTodo</span> }
+                    </a>
+                </li>
+            </ul>
+            @if (ViewBag.admin == 1)
+            {
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown, @Url.MakeActive("Admin", ViewBag.lastView as string)">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">Admin<span class="caret"></span></a>
+                        <ul class="dropdown-menu" id="ulDropDown">
+                            <li id="liDropDown" class="@Url.MakeActive("Admin", ViewBag.lastView as string)"><a href="@Url.Action("Index", "Admin")">DDS Punkter</a></li>
+                            <li id="liDropDown" class="@Url.MakeActive("Admin", ViewBag.lastView as string)"><a href="@Url.Action("DDSFreq", "Admin")">DDS Frekvenser</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            }
+
+        </div>
+</nav>
+<script>
+    var toggle = 0;
+    $('#toggleInfobar').click(function () {
+        var partialView = document.getElementById('machinePartialView');
+        var toggleIcon = document.getElementById('toggleIcon');
+        var pageContent = document.getElementById('pageContent');
+        if (toggle == 0) {
+            partialView.style.display = 'none';
+            toggleIcon.className = "glyphicon glyphicon-chevron-down";
+            pageContent.style.paddingLeft = "0px";
+            toggle = 1;
+        } else {
+            partialView.style.display = '';
+            toggleIcon.className = "glyphicon glyphicon-chevron-up";
+            pageContent.style.paddingLeft = "220px";
+            toggle = 0;
+        }
+    });
+</script>

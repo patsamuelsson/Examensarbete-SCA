@@ -1,0 +1,74 @@
+﻿@model List<FrequensViewModel>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="col-sm-12">
+                @{
+                    int len = Model.Count/21;
+                    string[] days = { "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag" };
+                 }
+
+                @for (var y=0; y<len; y++)
+                {
+                    var detailSett = @Model.Skip(y * 21).First();
+                    <div class="col-sm-4 col-xs-12">
+                        <div class="panel panel-success">
+                            <div class="panel-heading">@detailSett.description</div>
+                            <div class="panel-body">
+                                @for (int x = 0; x < 7; x++)
+                                {
+                                    var freq1 = Model.Skip(21 * y + x*3).First();
+                                    var freq2 = Model.Skip(21 * y + x*3+1).First();
+                                    var freq3 = Model.Skip(21 * y + x*3+2).First();
+
+                                    <div><p id="frequensDays">@days[x]</p>
+                                        <div class="row">
+                                            FM <input type="checkbox" id="@freq1.ShortShift @freq1.DetailSettingID" @freq1.Active />
+                                            EM <input type="checkbox" id="@freq2.ShortShift @freq2.DetailSettingID" @freq2.Active />
+                                            Natt <input type="checkbox" id="@freq3.ShortShift @freq3.DetailSettingID" @freq3.Active />
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-xs-12 col-sm-6 col-sm-push-3">Veckofrekvens:
+                                    <select id="selectWeekFrequens @detailSett.DetailSettingID">
+                                        @for (int i = 1; i < 53; i++) {
+                                            if (detailSett.WeekFrequens == i) {
+                                                <option selected="selected">@i</option>
+                                            }
+                                            else {
+                                                <option>@i</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @Html.Hidden("machSymbolicId", Model.Skip(y).First().MachSymbolicID);
+                }
+            </div>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function () {
+        $('input:checkbox').change(function () {
+            var id = this.id;
+            var shortShift = id.substring(0, 2);
+            var detailSettId = id.substring(3);
+            var checkActive = 0;
+            if(this.checked){
+                checkActive = 1;
+            }
+            $.post('@Url.Action("setActiveSettingFrequens")', { id: detailSettId, shortShift: shortShift, active: checkActive }, function (reps) {
+                //Do nothing with the response
+            }, 'json');
+        });
+
+        $('select').on('change', function () {
+            var thisId = this.id.substr(this.id.indexOf(" "));
+            var thisWeekFreq = this.value;
+            $.post('@Url.Action("setWeekSettingFrequens")', { id: thisId, weekFreq: thisWeekFreq });
+        });
+    });
+</script>

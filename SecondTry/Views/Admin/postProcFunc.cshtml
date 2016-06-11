@@ -1,0 +1,19 @@
+﻿@model List<string>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <h3>@ViewBag.procFunc</h3>
+        @using (Html.BeginForm("postProcFunc", "DDS"))
+        {
+            foreach (var sett in Model)
+            {
+                <div class="col-sm-2">
+                    <label>@Html.RadioButton("procFunc", sett, false)@sett</label>
+                </div>
+            }
+            <div class="col-lg-12">
+                <input type="submit" value="Submit" />
+            </div>
+        }
+    </div>
+</div>

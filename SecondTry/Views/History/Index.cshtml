@@ -1,0 +1,36 @@
+﻿
+<div class="panel panel-default">
+    <div class="panel-body">
+        <h2>History</h2>
+@*
+    @using (Html.BeginForm("History", "History"))
+    {
+        @Html.DropDownList("machSettID", (IEnumerable<SelectListItem>)ViewBag.categories, "Välj")
+        <button type="submit">Submit</button>
+    }
+
+    <img src="~/content/chart.png" class="img-responsive" />
+
+    <table class="DDStasks">
+        <tr>
+            <th>Setting</th>
+            <th>Date</th>
+            <th>Inputs</th>
+        </tr>
+        @foreach (var hist in Model)
+        {
+            <tr>
+                <td>
+                    @hist.MachineSettings.machineSetting
+                </td>
+                <td>
+                    @hist.date
+                </td>
+                <td>
+                    @hist.paramInput
+                </td>
+            </tr>
+        }
+    </table>*@
+        </div>
+    </div>

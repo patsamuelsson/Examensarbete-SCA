@@ -1,0 +1,288 @@
+﻿@model IEnumerable<GetShift5S>
+
+<div class="panel panel-default">
+    <div class="panel-body table-responsive">
+            <h2>5S</h2>
+            <table class="table" id="table" style="text-align:left;">
+                <thead>
+                    <tr>
+                        <th class="col-md-1 col-sm-1">Skift</th>
+                        <th class="col-md-6 col-sm-6">Beskrivning (tryck för att visa bild)</th>
+                        <th class="col-md-1 col-sm-1">Okej?</th>
+                        <th class="col-md-3 col-sm-3">Kommentar</th>
+                        <th class="col-md-1 col-sm-1"></th>
+                    </tr>
+                </thead>
+            @if (ViewData["5sDone"] != null)
+            {
+                foreach (var s5 in ViewData["5sDone"] as IEnumerable<GetShift5S>)
+                {
+                        <tr id="tr @s5._5SDoneID" class="success">
+                            <td class="toggleable">@s5.shift</td>
+                            <td class="toggleable" id="desc @s5._5SDoneID" data-container="body" data-toogle="tooltip" data-placement="top" title="Tryck för att visa Bild">@s5._5SDescription</td>
+                            @Html.Hidden("id", s5._5SDoneID, new { id = "hidden " + s5._5SDoneID })
+                            <td><span id="status @s5._5SDoneID" style="white-space: nowrap;">@s5.Status</span></td>
+                            <td><p id="comment @s5._5SDoneID">@s5.Comment </p></td>
+                            <td><input type="button" id="editButton @s5._5SDoneID" value="Ändra" onclick="edit5s(@s5._5SDoneID)" class="@ViewBag.submitClass" @ViewBag.canSubmit /></td>
+                        </tr>
+                        <tr style="display: none;" class="success" id="trHidden @s5._5SDoneID">
+                            <td colspan="5">
+                                <div class="row">
+                                    @if (!s5.HyperLinkCorrect.IsEmpty())
+                                    {
+                                        <div class="col-sm-6">
+                                            <p>Korrekt Bild</p>
+                                            <img src="@s5.HyperLinkCorrect"/>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-sm-6">
+                                            <p>Korrekt Bild</p>
+                                            <p>Bild Finns Ej</p>
+                                        </div>
+                                    }
+                                    @if (!s5.HyperLinkCorrect.IsEmpty())
+                                    {
+                                        <div class="col-sm-6">
+                                            <p>Tagen Bild</p>
+                                            <img src="@s5.HyperLink" />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-sm-6">
+                                            <p>Tagen Bild</p>
+                                            <p>Bild Finns Ej</p>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+
+                @foreach (var s5 in Model)
+                {
+                    <tr class="danger" id="tr @s5._5SDoneID">
+                        <td class="toggleable">@s5.shift</td>
+                        <td class="toggleable" id="desc @s5._5SDoneID" data-container="body" data-toogle="tooltip" data-placement="top" title="Tryck för att visa Bild">@s5._5SDescription</td>
+                        @Html.Hidden("id", s5._5SDoneID, new { id = "hidden " + s5._5SDoneID })
+                        <td><p id="status @s5._5SDoneID">Välj</p></td>
+                        <td><p id="comment @s5._5SDoneID"></p></td>
+                        <td><input type="button" id="editButton @s5._5SDoneID" value="Utför" onclick="edit5s(@s5._5SDoneID)" class="@ViewBag.submitClass" @ViewBag.canSubmit /></td>
+                    </tr>
+                    <tr style="display:none;" class="danger" id="trHidden @s5._5SDoneID">
+                        <td colspan="5">
+                            <div class="row">
+                                @if (!s5.HyperLinkCorrect.IsEmpty())
+                                {
+                                    <div class="col-sm-12">
+                                        <p>Korrekt Bild</p>
+                                        <img src="@s5.HyperLinkCorrect" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-12">
+                                        <p>Korrekt Bild</p>
+                                        <p>Bild Finns Ej</p>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+            
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModelLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header modal-header-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">
+                                    &times;
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">Modermodemet</h4>
+                        </div>
+                        <div class="modal-body" id="myModalBody">
+                            <p>"EJ OK" valt, vill du ta en bild?</p>
+                        </div>
+                        <div class="modal-footer" id="myModalFooter">
+                            <button type="button" class="btn btn-default" onclick="takePicture()">Ja</button>
+                            <button type="button" class="btn btn-default" onclick="submitForm()">Nej</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+       </div>
+</div>
+
+<script>
+    var idToPic;
+
+    /* Script for showing picture if there is one */
+    $(".toggleable").on('click', function () {
+        $(this).parent().next("tr").toggle();
+    });
+
+    /* Intialize Tooptips */
+    $(function (){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    /* Autogrow Comments */
+    function autoGrow(id) {
+        var textArea = document.getElementById("new_comment " + id);
+
+        textArea.oninput = function () {
+            textArea.style.height = "";
+            textArea.style.height = Math.min(textArea.scrollHeight, 300) + "px";
+        }
+    }
+
+    /* Validate that the user has choosen OK/EJ OK if OK submit the form
+       if EJ OK show the confirmTakePicture div */
+    function ValidateOk(id) {
+        /* Get the select value */
+        var x = document.getElementById(id);
+        var selected = x.options[x.selectedIndex].value;
+
+        if (selected == "none") {
+            x.style.marginRight = "12px";
+            x.style.border = "solid red";
+        }else{
+            /* Add the comment and Select to the form */
+            var theForm = document.getElementById("editSubmit " + id);
+            var theComment = document.getElementById("new_comment " + id).value;
+
+            var commentToAdd = document.createElement("input");
+            commentToAdd.type = "hidden";
+            commentToAdd.name = "comment";
+            commentToAdd.value = theComment;
+
+            var status = document.createElement("input");
+            status.type = "hidden";
+            status.name = "ok";
+            status.value = selected;
+
+            theForm.appendChild(status);
+            theForm.appendChild(commentToAdd);
+
+        
+            if (selected == "EJ OK") {
+                var description = document.getElementById("desc " + id).innerHTML;
+                document.getElementById("myModalLabel").innerHTML = description;
+                $("#myModal").modal();
+                idToPic = id;
+            }
+            else {
+                theForm.submit();
+            }
+        }
+    }
+
+    /* Take a picture */
+    function takePicture() {
+        document.getElementById("takePicVar " + idToPic).value = "1";
+        document.getElementById("editSubmit " + idToPic).submit();
+    }
+
+    /* Submit Form */
+    function submitForm() {
+        document.getElementById("editSubmit " + idToPic).submit();
+    }
+
+    /* Function to edit a 5S task already submitted */
+    function edit5s(id) {
+
+        /* Get the Table and the row */
+        var oldRow = document.getElementById("tr " + id);
+        var trIndex = oldRow.rowIndex;
+        var cells = oldRow.getElementsByTagName('td');
+        var theTable = oldRow.parentNode;
+
+        /* Replace Comment */
+        var comment = document.getElementById("comment " + id);
+        var new_comment = document.createElement('textarea');
+        new_comment.style.overflow = "hidden";
+
+        new_comment.id = "new_comment " + id;
+        new_comment.value = comment.innerText;
+        new_comment.cols = 30;
+        new_comment.rows = 4;
+        new_comment.maxLength = 480;
+        
+        /* Replace Status */
+        var status = document.getElementById("status " + id);
+        var new_status = document.createElement('select');
+        
+        new_status.id = id;
+        new_status.appendChild(new Option("Välj", "none"));
+        new_status.appendChild(new Option("OK", "OK"));
+        new_status.appendChild(new Option("EJ OK", "EJ OK"));
+        
+        /* Replace Button */
+        var button = document.getElementById("editButton " + id);
+        var new_button = document.createElement('input');
+
+        new_button.type = 'button';
+        new_button.value = "Spara";
+        new_button.className = button.className;
+        new_button.addEventListener("click", function () {
+            ValidateOk(id);
+        });
+
+        /* Create a new Row */
+        var newCell1 = document.createElement('td');
+        var newCell2 = document.createElement('td');
+        var newCell3 = document.createElement('td');
+        var newCell4 = document.createElement('td');
+        var newCell5 = document.createElement('td');
+
+        newCell1 = cells[0];
+        newCell2 = cells[1];
+        newCell3.appendChild(new_status);
+        newCell4.appendChild(new_comment)
+        newCell5.appendChild(new_button);
+
+        var newRow = theTable.insertRow(trIndex-1);
+        newRow.className = "warning";
+        newRow.appendChild(newCell1);
+        newRow.appendChild(newCell2);
+        newRow.appendChild(newCell3);
+        newRow.appendChild(newCell4);
+        newRow.appendChild(newCell5);
+
+        /* Create a Form and Add submit Attributes */
+        var theForm = document.createElement("form");
+        var hiddenID = document.getElementById("hidden " + id);
+
+        theForm.setAttribute("action", "@Url.Action("submit5S","_5S")");
+        theForm.setAttribute("method", "POST");
+        theForm.id = "editSubmit " + id;
+
+        var inputID = document.createElement("input");
+        var inputPicVar = document.createElement("input");
+
+        inputID.type = "hidden";
+        inputID.name = "id";
+        inputID.value = hiddenID.value;
+
+        inputPicVar.type = "hidden";
+        inputPicVar.name = "takePicVar";
+        inputPicVar.id = "takePicVar " + id;
+        inputPicVar.value = "0";
+
+        theForm.appendChild(inputID);
+        theForm.appendChild(inputPicVar);
+        
+        document.body.appendChild(theForm);
+
+        /* Set toggle row to warning class */
+        document.getElementById("trHidden " + id).className = "warning";
+
+        theTable.removeChild(oldRow);
+
+        autoGrow(id);
+    }
+</script>

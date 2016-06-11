@@ -1,0 +1,185 @@
+﻿@model List<SettingExecutedReadings>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <h2>DDS</h2>
+        <table class="table table-responsive" id="table" style="text-align:left;">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">DDS Punkt</th>
+                    <th class="col-sm-2">Kommentar</th>
+                    <th class="col-sm-3">Åtgärder vid avvikande Värde</th>
+                    <th class="col-sm-2">Beskrivning</th>
+                    <th class="col-sm-1">Avläst Värde</th>
+                    <th class="col-sm-1">Enhet</th>
+                    <th class="col-sm-1"></th>
+                </tr>
+            </thead>
+            @if (ViewData["DDSDone"] != null)
+            {
+                foreach (var dds in ViewData["DDSDone"] as List<SettingExecutedReadings>)
+                {
+                    var id = dds.ExecutedReadingsID;
+                    <tr class="success" id="todo tr @id">
+                        <td id="dds @id">@dds.PROCFUNC.@dds.PROCUNIT @dds.TEXTGB</td>
+                        <td id="comment @id"><p>Jag är en kommentar</p></td>
+                        <td id="deviant @id">@dds.ActionsIfDeviantValue</td>
+                        <td id="link @id">Jag är en LÄNK!</td>
+                        <td id="value @id"><span id="span @id" class="spanOnlyNum"></span>@dds.ReadingValue</td>
+                        <td id="unit @id">@dds.Unit</td>
+                        @Html.Hidden("minVal", dds.MinValue, new { id = "hiddenMinVal " + id })
+                        @Html.Hidden("tarVal", dds.TargetValue, new { id = "hiddenTargetVal " + id })
+                        @Html.Hidden("maxVal", dds.MaxValue, new { id = "hiddenMaxVal " + id })
+                        <td><input id="submitButton @id" type="button" onclick="doDDS(@id)" value="Ändra" /><br /><br /></td>
+                    </tr>
+                }
+            }
+
+            @foreach (var dds in Model) {
+                var id = dds.ExecutedReadingsID;
+                <tr class="danger" id="todo tr @id">
+                    <td id="dds @id">@dds.PROCFUNC.@dds.PROCUNIT @dds.TEXTGB</td>
+                    <td id="comment @id"><p>Jag är en kommentar</p></td>
+                    <td id="deviant @id">@dds.ActionsIfDeviantValue</td>
+                    <td id="link @id">Jag är en LÄNK!</td>
+                    <td id="value @id"><span id="span @id" class="spanOnlyNum"></span></td>
+                    <td id="unit @id">@dds.Unit</td>
+                    @Html.Hidden("minVal", dds.MinValue, new { id = "hiddenMinVal " + id })
+                    @Html.Hidden("tarVal", dds.TargetValue, new { id = "hiddenTargetVal " + id })
+                    @Html.Hidden("maxVal", dds.MaxValue, new { id = "hiddenMaxVal " + id })
+                    <td><input id="submitButton @id" type="button" onclick="doDDS(@id)" value="Utför"/><br /><br /></td>
+                </tr>
+            }
+        </table>
+
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModelLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-header-primary">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Modermodemet</h4>
+                    </div>
+                    <div class="modal-body" id="myModalBody">
+                        <h4>Avvikande Värde</h4>
+                        <table class="table table-centered">
+                            <tr class="trHead">
+                                <td>Min</td>
+                                <td>Mål</td>
+                                <td>Max</td>
+                            </tr>
+                            <tr>
+                                <td id="modalLabelMin"></td>
+                                <td id="modalLabelTarget"></td>
+                                <td id="modalLabelMax"></td>
+                            </tr>
+                            @Html.Hidden("modalHiddenId", "", new { id = "modalHiddenId" })
+                        </table>
+                        <p>Kommentar:</p>
+                        <textarea rows="3" cols="30" id="modalTextComment" maxlength="475"></textarea>
+                    </div>
+                    <div class="modal-footer" id="myModalFooter">
+                        <button type="button" class="btn btn-default" onclick="afterModal()">OK</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function doDDS(x) {
+        
+        document.getElementById('todo tr ' + x).className = "warning";
+        var valTD = document.getElementById('value ' + x);
+        var oldVal = valTD.innerText;
+        var theSpan = document.getElementById('span ' + x);
+        valTD.innerHTML = "";
+
+        var textInput = document.createElement('input');
+        textInput.type = "text";
+        textInput.size = "6";
+        textInput.id = "readValue " + x;
+        textInput.value = oldVal;
+
+        valTD.appendChild(textInput);
+        valTD.appendChild(theSpan);
+
+        $(textInput).keypress(function (e) {
+            if (e.which == 44) {
+                var textValue = document.activeElement.value;
+                var comma = textValue.indexOf(',');
+                if (comma >= 0) {
+                    $(theSpan).html('Endast en ,').show().fadeOut(1500);
+                    return false;
+                }
+            }
+
+            if (e.which != 8 && e.which != 0 && e.which != 44 && (e.which < 48 || e.which > 57)) {
+                $(theSpan).html('Bara 1-9 ,').show().fadeOut(1500);
+                return false;
+            }
+        });
+
+        document.getElementById('submitButton ' + x).setAttribute('onClick', 'submitDDS(' + x + ')');
+        document.getElementById('submitButton ' + x).value = "Spara";
+    }
+
+    function afterModal() {
+        var id = document.getElementById('modalHiddenId').value;
+        var theForm = document.getElementById('submitForm ' + id);
+        document.getElementById('hiddenCommentId').value = document.getElementById('modalTextComment').value;
+        theForm.submit();
+    }
+
+    function submitDDS(x) {
+        var inputValue = document.getElementById("readValue " + x).value;
+        var minValue = document.getElementById("hiddenMinVal " + x).value;
+        var targetValue = document.getElementById("hiddenTargetVal " + x).value;
+        var maxValue = document.getElementById("hiddenMaxVal " + x).value;
+
+        var form = document.createElement('form');
+        form.setAttribute("action", "@Url.Action("submitDDS","DDS")");
+        form.setAttribute("method", "POST");
+        form.id = "submitForm " + x;
+
+        var hiddenId = document.createElement('input');
+        var hiddenReadValue = document.createElement('input');
+        var hiddenComment = document.createElement('input');
+
+        hiddenId.type = "hidden";
+        hiddenReadValue.type = "hidden";
+        hiddenComment.type = "hidden";
+
+        hiddenId.name = "hiddenId";
+        hiddenReadValue.name = "hiddenReadValue";
+        hiddenComment.name = "hiddenComment";
+
+        hiddenId.value = x;
+        hiddenReadValue.value = inputValue;
+        hiddenComment.value = "";
+
+        hiddenComment.id = "hiddenCommentId";
+            
+
+        form.appendChild(hiddenId);
+        form.appendChild(hiddenReadValue);
+        form.appendChild(hiddenComment);
+        document.body.appendChild(form);
+
+        if (inputValue < minValue || inputValue > maxValue) {
+            document.getElementById('modalLabelMin').innerHTML = minValue;
+            document.getElementById('modalLabelTarget').innerHTML = targetValue;
+            document.getElementById('modalLabelMax').innerHTML = maxValue;
+            document.getElementById('myModalLabel').innerText = document.getElementById('dds ' + x).innerText;
+            document.getElementById('modalHiddenId').value = x;
+            $("#myModal").modal();
+        } else {
+            document.getElementById('submitForm ' + x).submit();
+        }
+    }
+    
+
+
+</script>

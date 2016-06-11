@@ -1,0 +1,45 @@
+﻿<script type="text/javascript" src="~/Scripts/webcam.js"></script>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row">
+            <div id="my_camera" class="col-sm-6 col-xs-12"></div>
+            <div id="my_result" class="col-sm-6 col-xs-12"></div>
+        </div>
+        @Html.Hidden("id", ViewBag.id as string, new { id = "hiddenID" })
+        @Html.Hidden("uri", "", new { id = "uri" })
+        <div class="row">
+            <input type="button" class="btn btn-default" value="Ta Bild" onclick="take_snapshot()" />
+            <input type="button" class="btn btn-default disabled" value="Spara" onclick="submit()" id="submitButton" disabled />
+            <input type="button" class="btn btn-default" value="Avbryt" onclick="location.href='@Url.Action("Index", "_5S")'" />
+        </div>
+    </div>
+</div>
+
+<script language="JavaScript">
+    Webcam.set({
+        width: 320,
+        height: 240
+    });
+    Webcam.attach('#my_camera');
+
+    function take_snapshot() {
+        Webcam.snap(function (data_uri) {
+            document.getElementById("my_result").innerHTML = '<img src="' + data_uri + '" id="pictureTaken"/>';
+            var submitButton = document.getElementById("submitButton");
+            submitButton.disabled = "";
+            submitButton.className = "btn btn-default";
+            document.getElementById("uri").value = data_uri;
+        });
+    }
+
+    function submit() {
+        var theForm = document.createElement("form");
+        theForm.setAttribute("method", "post");
+        theForm.setAttribute("action", "@Url.Action("submitPicture", "_5S")");
+        
+        theForm.appendChild(document.getElementById("hiddenID"));
+        theForm.appendChild(document.getElementById("uri"));
+        document.getElementById("my_result").appendChild(theForm);
+        theForm.submit();
+    }
+</script>

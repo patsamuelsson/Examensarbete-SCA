@@ -1,0 +1,427 @@
+﻿@model SecondTry.Models.SelectSetting
+
+<div class="panel panel-default">
+    <div class="panel-body" id="theContent">
+        <div class="row">
+            <label id="instructions">Välj Process Funktion</label>
+        </div>
+        <div class="row">
+            @using (Ajax.BeginForm("UpdateSettingPartialView", "DDS", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "settings", InsertionMode = InsertionMode.Replace }))
+            {
+                @Html.ListBox("procFunc", ViewBag.FuncSelect as IEnumerable<SelectListItem>, new
+           {
+               size = 10,
+               @class = "col-sm-1 col-sm-push-3",
+               id = "listboxProcFunc",
+               onchange = "updateListBox(1)"
+           })
+
+                @Html.ListBox("procUnit", Enumerable.Empty<SelectListItem>(), new
+           {
+               size = 10,
+               @class = "col-sm-3 col-sm-push-3",
+               id = "listboxProcUnit",
+               onchange = "updateListBox(2)"
+           })
+
+                @Html.ListBox("settingDescriptions", Enumerable.Empty<SelectListItem>(), new
+           {
+               size = 10,
+               @class = "col-sm-2 col-sm-push-3",
+               id = "listboxDescriptions",
+               onchange = "addSetting()"
+           })
+
+                <input type="submit" style="display:none;" id="test" />
+            }
+            <div id="settings">
+            </div>
+        </div>
+        <div class="row">
+            <div id="addDescription" class="AddAdminDDS">
+                @using (Html.BeginForm("addDescription", "Admin", FormMethod.Post, new { ID = "addDescriptionForm" }))
+                {
+                    <fieldset><br />
+                        Process Funktion: <label name="procFuncInp" id="procFuncInp"></label><br />
+                        Process Enhet: <label name="procUnitInp" id="procUnitInp"></label><br />
+                        Beskrivning(Svenska): <input name="descSV" id="descSV" type="text" /><br />
+                        Beskrivning(Engelska): <input name="descGB" id="descGB" /><br />
+                        <input type="button" class="btn btn-default" onclick="addDescription()" value="Lägg Till" />
+                    </fieldset>
+                }
+            </div>
+            <div id="addSetting" class="AddAdminDDS">
+                @using (Html.BeginForm("addSetting", "Admin", FormMethod.Post, new { ID = "addSettingForm" }))
+                {
+                    <fieldset><br />
+                        Start Vecka: <input type="text" id="weekpicker" name="weekpicker"></input>
+                        @Html.Hidden("startDate", "", new { id = "startDate" })
+                        @Html.Hidden("indexSelectedDesc", "", new { id = "indexSelectedDesc" })
+                        <input class="btn btn-default" type="Submit" value="Välj" />
+                    </fieldset>
+                }
+            </div><br />
+            <div id="addValues" class="col-sm-10 col-sm-push-1 AddAdminDDS">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">Lägg till nya DDS värden</div>
+                    <div class="panel-body">
+                        @using (Html.BeginForm("addValues", "Admin", FormMethod.Post, new { id = "setValuesForm" }))
+                        {
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    Minimum Värde:<br />
+                                    <input type="text" name="minVal" class="onlyDecimals" id="formMinVal"/><br />
+                                    <span class="spanOnlyNum" id="spanMinVal"></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    Målvärde:<br />
+                                    <input type="text" name="targetVal" class="onlyDecimals" id="formTarVal"/><br />
+                                    <span class="spanOnlyNum" id="spanTarVal"></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    Maximum Värde:<br />
+                                    <input type="text" name="maxVal" class="onlyDecimals" id="formMaxVal"/><br />
+                                    <span class="spanOnlyNum" id="spanMaxVal"></span><br />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    Enhet: <br />
+                                    <input type="text" name="unitVal" /> <br />
+                                    <span></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    Artikel Nummer:<br />
+                                    <input type="text" name="artNo" class="onlyNumbers" value="0" /> <br />
+                                    <span class="spanOnlyNum"></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    Material Nummer: <br />
+                                    <input type="text" name="matNo" class="onlyNumbers" value="0" /><br />
+                                    <span class="spanOnlyNum"></span><br />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    Facing:<br />
+                                    <input type="text" name="facingVal" class="onlyNumbers" value="0" /> <br />
+                                    <span class="spanOnlyNum"></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    ProdInStaple:<br />
+                                    <input type="text" name="prodInStapleVal" class="onlyNumbers" value="0" /> <br />
+                                    <span class="spanOnlyNum"></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    Staplar I Påse!:<br />
+                                    <input type="text" name="staplesInBagVal" class="onlyNumbers" value="0" /> <br />
+                                    <span class="spanOnlyNum"></span><br />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    Artikel Storlek:<br />
+                                    <input type="text" name="articleSizeVal" class="onlyNumbers" value="0" /> <br />
+                                    <span class="spanOnlyNum"></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    Att göra vid Avvikande värde:<br />
+                                    <input type="text" name="actionsIfDeviantVal" /> <br />
+                                    <span class="spanOnlyNum"></span><br />
+                                </div>
+                                <div class="col-sm-4 col-xs-12 text-center">
+                                    <input class="btn btn-default" type="button" onclick="submitNewSettingValues()" value="Lägg Till" />
+                                </div>
+                            </div>
+                            @Html.Hidden("setValuesIndex", "", new { id = "setValuesIndex" })
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-10 col-sm-push-1" id="tableSettingVal"></div>
+    </div>
+</div>
+
+<script>
+
+    var isTheListEmpty = true;
+
+    $(document).ready(function () {
+        $('#listboxProcFunc').removeAttr('multiple');
+        $('#listboxProcUnit').removeAttr('multiple');
+        $('#listboxDescriptions').removeAttr('multiple');
+        addKeyPressEvent();
+    });
+
+    function addKeyPressEvent() {
+        $('.onlyNumbers').keypress(function (e) {
+            if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                var theSpan = document.activeElement.nextElementSibling.nextElementSibling;
+                $(theSpan).html('Bara Siffror').show().fadeOut(1000);
+                return false;
+            }
+        });
+
+        $('.onlyDecimals').keypress(function (e) {
+            if (e.which == 44) {
+                var textValue = document.activeElement.value;
+                var comma = textValue.indexOf(',');
+                if (comma >= 0) {
+                    var theSpan = document.activeElement.nextElementSibling.nextElementSibling;
+                    $(theSpan).html('Bara en st , får skrivas in').show().fadeOut(1000);
+                    return false;
+                }
+            }
+
+            if (e.which != 8 && e.which != 0 && e.which != 44 && (e.which < 48 || e.which > 57)) {
+                var theSpan = document.activeElement.nextElementSibling.nextElementSibling;
+                $(theSpan).html('Bara 0-9 , får användas').show().fadeOut(1000);
+                return false;
+            }
+        });
+    }
+
+    $(function () {
+        $.datepicker.setDefaults($.datepicker.regional['sv']);
+        var startDate,
+            endDate,
+            selectCurrentWeek = function () {
+                window.setTimeout(function () {
+                    $('#weekpicker').datepicker('widget').find('.ui-datepicker-current-day a').addClass('ui-state-active')
+                }, 1);
+            };
+
+        $('#weekpicker').datepicker({
+            showWeek: true,
+            showOtherMonths: true,
+            selectOtherMonths: true,
+            onSelect: function (dateText, inst) {
+                var date = $(this).datepicker('getDate');
+                var dateFormat = inst.settings.dateFormat || $.datepicker._defaults.dateFormat;
+                startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 1);
+                endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 7);
+
+                document.getElementById("startDate").value = $.datepicker.formatDate(dateFormat, startDate, inst.settings);
+                var week = $.datepicker.iso8601Week(new Date(dateText));
+
+                $('#weekpicker').val(startDate.getFullYear().toString().substr(2, 2) + ('0' + week).slice(-2));
+                selectCurrentWeek();
+            },
+            "beforeShow": function () {
+                selectCurrentWeek();
+            },
+
+            "beforeShowDay": function (date) {
+                var cssClass = '';
+                if (date >= startDate && date <= endDate) {
+                    cssClass = 'ui-datepicker-current-day';
+                }
+                return [true, cssClass];
+            },
+            "onChangeMonthYear": function (year, month, inst) {
+                selectCurrentWeek();
+            }
+        }).datepicker('widget').addClass('ui-weekpicker');
+
+        $('.ui-weekpicker').on('mousemove', 'tr', function () { $(this).find('td a').addClass('ui-state-hover'); });
+        $('.ui-weekpicker').on('mouseleave', 'tr', function () { $(this).find('td a').removeClass('ui-state-hover'); });
+    });
+
+    function updateListBox(x) {
+        if (x == 1) {
+            document.getElementById("instructions").innerHTML = "Välj Process Enhet";
+            var listBoxVal = document.getElementById("listboxProcFunc").value;
+            var resetLastBox = $('#listboxDescriptions');
+            if (resetLastBox.length != 0) {
+                resetLastBox.empty();
+            }
+            $.getJSON('@Url.Action("ProcUnit")', { procFunc: listBoxVal }, function (procUnit) {
+                var getListBox = $('#listboxProcUnit');
+                getListBox.empty();
+                var i = 0;
+                $.each(procUnit, function (index, procUnit) {
+                    getListBox.append($('<option/>', {
+                        value: i,
+                        text: procUnit
+                    }));
+                    i++;
+                });
+            });
+            document.getElementById("addSetting").style.display = "none";
+            document.getElementById("addDescription").style.display = "none";
+            document.getElementById("addValues").style.display = "none";
+            $('#tableSettingVal').html('');
+        } else {
+            document.getElementById("instructions").innerHTML = "Lägg till ny Beskrivning för inställning eller välj beskrivning (*) står för ej startad inställning";
+            var procUnit = document.getElementById("listboxProcUnit");
+            var listBoxVal = procUnit.value;
+            $.getJSON('@Url.Action("getDescriptions")', { index: listBoxVal }, function (procUnit) {
+                var getListBox = $('#listboxDescriptions');
+                getListBox.empty();
+                var i = 0;
+                $.each(procUnit, function (index, procUnit) {
+                    getListBox.append($('<option/>', {
+                        value: i,
+                        text: procUnit
+                    }));
+                    i++;
+                });
+                if (i == 0) {
+                    isTheListEmpty = true;
+                    getListBox.append($('<option />', {
+                        value: 0,
+                        text: "No Setting Available"
+                    }));
+                } else {
+                    isTheListEmpty = false;
+                }
+            });
+            var ProcUnitInp = document.getElementById("procUnitInp");
+            var ProcFuncInp = document.getElementById("procFuncInp");
+
+            ProcUnitInp.innerHTML = $("#listboxProcUnit option:selected").text();
+            ProcFuncInp.innerHTML = $("#listboxProcFunc option:selected").text();
+
+            document.getElementById("addDescription").style.display = "block";
+            document.getElementById("addSetting").style.display = "none";
+            document.getElementById("addValues").style.display = "none";
+            $('#tableSettingVal').html('');
+        }
+    }
+
+    function addDescription() {
+        var theForm = document.getElementById("addDescriptionForm");
+        var procFunc = document.getElementById("procFuncInp");
+        var procUnit = document.getElementById("procUnitInp");
+
+        var hiddUnit = document.createElement("input");
+        hiddUnit.type = "hidden";
+        hiddUnit.name = "hiddUnit";
+        hiddUnit.value = procUnit.innerHTML;
+
+        theForm.appendChild(hiddUnit);
+        document.getElementById("addDescriptionForm").submit();
+    }
+
+    function addSetting() {
+        $('#tableSettingVal').html('');
+        if (!isTheListEmpty) {
+            var description = $("#listboxDescriptions option:selected").text();
+            if (description.indexOf(" (*)") > 0) {
+                document.getElementById("instructions").innerHTML = "Välj vilken vecka du vill starta.";
+                document.getElementById("addDescription").style.display = "none";
+                document.getElementById("addValues").style.display = "none";
+                document.getElementById("addSetting").style.display = "block";
+                document.getElementById("indexSelectedDesc").value = document.getElementById("listboxDescriptions").selectedIndex;
+            } else {
+                document.getElementById("instructions").innerHTML = "Ändra/Lägg till ny inställning för den startade inställningen";
+                document.getElementById("addDescription").style.display = "none";
+                document.getElementById("addValues").style.display = "block";
+                document.getElementById("addSetting").style.display = "none";
+                var descIndex = document.getElementById("listboxDescriptions").selectedIndex;
+                document.getElementById("setValuesIndex").value = descIndex;
+
+                $.getJSON('@Url.Action("getAllSettingValues")', { index: descIndex }, function (descValues) {
+                    $.each(descValues, function (i) {
+                        
+                        var $selectedDesc = $('#listboxDescriptions option:selected').text();
+                        var $theForm = $('<form action=' + '/Admin/addValues method=' + 'post></form>');
+                        var $thePanel = $('<div></div>').addClass("panel panel-success")
+                        var $panelHeader = $('<div>'+ 'Ändra ' + $selectedDesc + ' Setting ' + i + '</div>').addClass("panel-heading")
+                        var $panelBody = $('<div></div>').addClass("panel-body")
+
+                        var $row1 = $('<div></div>').addClass('row');
+                        
+                        $row1.append('<div class="col-sm-4 col-xs-12"> Minimum Värde: <br /><input type="text" name="minVal" class="onlyDecimals" value=' + descValues[i].MinValue + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row1.append('<div class="col-sm-4 col-xs-12"> Målvärde: <br /><input type="text" name="targetVal" class="onlyDecimals" value=' + descValues[i].TargetValue + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row1.append('<div class="col-sm-4 col-xs-12"> Maximum Värde:<br /><input type="text" name="maxVal" class="onlyDecimals" value=' + descValues[i].MaxValue + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+
+                        var $row2 = $('<div></div>').addClass('row');
+                        $row2.append('<div class="col-sm-4 col-xs-12"> Enhet:<br /><input type="text" value="' + descValues[i].Unit + '" name="unitVal"/><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row2.append('<div class="col-sm-4 col-xs-12"> Artikelnummer:<br /><input type=" text" name="artNo" class="onlyNumbers" value=' + descValues[i].ArtNo + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row2.append('<div class="col-sm-4 col-xs-12"> Materialnummer:<br /><input type="text" name="matNo" class="onlyNumbers" value=' + descValues[i].MaterialNo + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+
+                        var $row3 = $('<div></div>').addClass('row');
+
+                        $row3.append('<div class="col-sm-4 col-xs-12"> Facing:<br /><input type="text" name="facingVal" class="onlyNumbers" value=' + descValues[i].Facing + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row3.append('<div class="col-sm-4 col-xs-12"> ProdInStaple:<br /><input type="text" name="prodInStapleVal" class="onlyNumbers" value=' + descValues[i].ProdsInStaple + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row3.append('<div class="col-sm-4 col-xs-12"> Staples in Bag:<br /><input type="text" name="staplesInBagVal" class="onlyNumbers" value=' + descValues[i].StaplesInBag + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+
+                        var $row4 = $('<div></div>').addClass('row');
+                        var $deviantText = descValues[i].ActionsIfDeviantValue;
+                        var $settingValueID = descValues[i].SettingValuesID;
+                        $row4.append('<div class="col-sm-4 col-xs-12"> Artikelstorlek:<br /><input type="text" name="articleSizeVal" class="onlyNumbers" value=' + descValues[i].ArticleSize + ' /><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row4.append('<div class="col-sm-4 col-xs-12">Att göra vid Avvikande värde:<br /><input id=' + $settingValueID + ' type="text" name="actionsIfDeviantVal"/><br /><span class="spanOnlyNum"></span><br /></div>');
+                        $row4.append('<div class=' + 'col-sm-4 col-xs-12' + '>' + '<input class="btn btn-default" type=' + 'submit' + ' value=' + 'Spara' + ' />' + '</div>');
+                        
+                        var $hiddenIndex = ('<input type="hidden" value="editValue" name="setValuesIndex"></input>');
+                        var $settingID = ('<input type="hidden" value=' + $settingValueID + ' name="settingID"></input>');
+
+                        $theForm.append($row1);
+                        $theForm.append($row2);
+                        $theForm.append($row3);
+                        $theForm.append($row4);
+                        $theForm.append($hiddenIndex);
+                        $theForm.append($settingID);
+                        $panelBody.append($theForm);
+                        $thePanel.append($panelHeader);
+                        $thePanel.append($panelBody);
+                        $('#tableSettingVal').append($thePanel);
+                        $('#' + $settingValueID).val($deviantText);
+                      
+                    });
+                });
+                setTimeout(addKeyPressEvent, 100);
+            }
+
+        } else {
+            document.getElementById("instructions").innerHTML = "Finns Inga inställningar, lägg till eller välj annan process.";
+        }
+    }
+
+    function submitNewSettingValues() {
+        var minVal = parseFloat(document.getElementById('formMinVal').value);
+        var tarVal = parseFloat(document.getElementById('formTarVal').value);
+        var maxVal = parseFloat(document.getElementById('formMaxVal').value);
+        alert(tarVal);
+        var spanMin = document.getElementById('spanMinVal');
+        var spanTar = document.getElementById('spanTarVal');
+        var spanMax = document.getElementById('spanMaxVal');
+
+        spanMin.innerHTML = "";
+        spanTar.innerHTML = "";
+        spanMax.innerHTML = "";
+
+        var errors = 0;
+
+        if (minVal > maxVal) {
+            spanMin.innerHTML = "Kontrollera Värde";
+            spanMax.innerHTML = "Kontrollera Värde";
+            errors++;
+        }
+        if (tarVal < minVal || tarVal > maxVal) {
+            spanTar.innerHTML = "Kontrollera Värde";
+            errors++;
+        }
+        if (isNaN(minVal)) {
+            spanMin.innerHTML = "Kontrollera Värde";
+            errors++;
+        }
+        if (isNaN(tarVal)) {
+            alert("test" + tarVal + "test");
+            spanTar.innerHTML = "Kontrollera Värde";
+            errors++;
+        }
+        if (isNaN(maxVal)) {
+            alert("test" + maxVal + "test")
+            spanMax.innerHTML = "Kontrollera Värde";
+            errors++;
+        }
+
+        if (errors == 0) {
+            document.getElementById('setValuesForm').submit();
+        }
+    }
+
+</script>
